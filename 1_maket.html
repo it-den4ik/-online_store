@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Карточка товара</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #fff;
+            padding: 20px;
+        }
+        a {
+            color: unset;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 100px 400px 1fr;
+            gap: 30px;
+        }
+
+        .thumbnails {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .thumbnails img {
+            width: 80px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+        .thumbnails img:hover {
+            border-color: #007bff;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: block;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 400px;
+            color: #333;
+        }
+        .product-info h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .breadcrumb {
+            display: flex;
+            gap: 18px;
+            font-size: 14px;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+        .price-block {
+            margin: 45px 0 15px;
+            font-size: 18px;
+        }
+        .old-price {
+            text-decoration: line-through;
+            color: #888;
+            margin-right: 10px;
+        }
+        .maybe-price {
+            color: #888;
+            margin-right: 10px;
+        }
+        .new-price {
+            margin-left: 24px;
+            font-weight: bold;
+        }
+        .promo-text {
+            margin-left: 5px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .availability {
+            background: #f8f8f8;
+            max-width: 350px;
+            padding: 16px;
+            border-radius: 5px;
+            margin-bottom: 50px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        .buttons button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .buy-btn {
+            background: #007bff;
+            color: #fff;
+        }
+        .buy-btn:hover {
+            background: #0056b3;
+        }
+        .buttons button.fav-btn {
+            background: #fff;
+            border: 2px solid #ccc;
+            color: #333;
+        }
+        .fav-btn:hover {
+            background: #f2f2f2;
+        }
+
+        .description {
+            font-size: 14px;
+            margin-bottom: 40px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .share {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .share span {
+            font-size: 14px;
+            margin-right: 10px;
+            color: #333;
+        }
+        .social-icons {
+            display: flex;
+
+        }
+
+        .social-icons img {
+            width: 36px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .arrow-box {
+            margin-top: 15px;
+            width: 50px;
+            height: 40px;
+            border: 1px solid #ccc;
+            display: inline-block;
+            position: relative;
+        }
+
+        .arrow-box::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            border-bottom: 2px solid black;
+            border-right: 2px solid black;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+        .arrow-box:hover {
+            cursor: pointer;
+        }
+        .url {
+            color: #007bff;
+        }
+
+        .quantity-widget {
+            align-self: start;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            margin-bottom: 24px;
+            margin-right: 15px;
+        }
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #fff;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .quantity-btn:nth-child(1) {
+            border-right:  1px solid #ccc;
+        }
+        .quantity-btn:nth-child(3) {
+            border-left:  1px solid #ccc;
+        }
+        .quantity-display {
+            width: 60px;
+            text-align: center;
+            background: #f2f2f2;
+            font-size: 16px;
+            line-height: 40px;
+        }
+        .quantity-btn:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="thumbnails">
+        <img src="shirt1_thumb.png" alt="Thumbnail 1"
+             class="thumb" data-big="shirt1_large.jpg">
+        <img src="shirt2_thumb.png" alt="Thumbnail 2"
+             class="thumb" data-big="shirt2_large.jpg">
+        <img src="shirt3_thumb.png" alt="Thumbnail 3"
+             class="thumb" data-big="shirt3_large.jpg">
+        <div class="arrow-box"></div>
+    </div>
+
+    <div class="main-image">
+        <img id="mainImg" src="shirt1_thumb.png" alt="Main Product Image">
+    </div>
+
+    <div class="product-info">
+        <h1>РУБАШКА MEDICINE</h1>
+        <div class="breadcrumb">
+            <a href="/">Рубашки Medicine</a>
+            <a href="/">Все модели Medicine</a>
+            <a href="/">Рубашки</a>
+        </div>
+
+        <div class="price-block">
+            <span class="old-price">2 699 ₽</span>
+            <span class="maybe-price">2 499 ₽</span>
+            <span class="new-price">2 227 ₽</span>
+            <span class="promo-text">— с промокодом</span>
+        </div>
+
+        <div class="availability">
+            <p>✅ В наличии в магазине <a class="url">Lamoda</a></p>
+            <p>🚚 Бесплатная доставка</p>
+        </div>
+
+        <div class="quantity-widget">
+            <button class="quantity-btn" id="minus">-</button>
+            <div class="quantity-display" id="quantityValue">1</div>
+            <button class="quantity-btn" id="plus">+</button>
+        </div>
+
+        <div class="buttons">
+            <button class="buy-btn" id="buyBtn">КУПИТЬ</button>
+            <button class="fav-btn">В ИЗБРАННОЕ</button>
+        </div>
+
+        <div class="description">
+            Рубашка Medicine выполнена из вискозной ткани с клетчатым узором.
+            Детали: прямой крой, отложной воротник, планка и манжеты на пуговицах; карман на груди.
+        </div>
+
+        <div class="share">
+            <span>ПОДЕЛИТЬСЯ:</span>
+            <div class="social-icons">
+                <img src="vk.png" alt="ВКонтакте">
+                <img src="facebook.png" alt="Facebook">
+                <img src="twitter.png" alt="Twitter">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        // При наведении на миниатюру
+        // по дефолту первая миниатюра активна
+        $('.thumb').first().css('border-color', '#007bff');
+        $('.thumb').hover(function(){
+            // .thumbnails img:hover {
+        //     border-color: #007bff;
+        // }
+            const newImage = $(this).attr('src');
+            $(this).css('border-color', '#007bff');
+            // у остальных миниатюр удаляем border-color
+            $('.thumb').not(this).css('border-color', 'transparent');
+            $('#mainImg').attr('src', newImage);
+        });
+    })
+
+    let quantity = 1;
+    $('#quantityValue').text(quantity);
+
+    $('#plus').click(function() {
+        quantity++;
+        $('#quantityValue').text(quantity);
+    });
+
+    $('#minus').click(function() {
+        // Не даём опуститься ниже 1
+        if (quantity > 1) {
+            quantity--;
+            $('#quantityValue').text(quantity);
+        }
+    });
+
+    $('#buyBtn').click(function(){
+        // Вывод уведомления с помощью toastr
+        toastr.success(`В корзину добавлено ${quantity} товаров`, 'Успешно!');
+    });
+
+    toastr.options = {
+        "positionClass": "toast-top-right",
+        "timeOut": "2000"
+    };
+</script>
+
+</body>
+</html>
